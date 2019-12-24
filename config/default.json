@@ -1,0 +1,4 @@
+{
+  "mongoURI": "mongodb+srv://noritada:nori2270@cluster0-pnnuh.mongodb.net/test?retryWrites=true&w=majority",
+  "jwtSecret": "sl_myJwtSecret"
+}
