@@ -87,4 +87,13 @@ router.delete("/:id", auth, (req, res) => {
     .catch(err => res.status(404).json({ success: false }));
 });
 
+router.get("/:id", (req, res) => {
+  Item.findById(req.params.id)
+    .then(items => {
+      console.log(items);
+      res.json(items);
+    })
+    .catch(err => res.status(404).json({ success: false }));
+});
+
 module.exports = router;

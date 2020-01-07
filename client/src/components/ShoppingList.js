@@ -9,8 +9,12 @@ import {
 } from "reactstrap";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { connect } from "react-redux";
-import { getItems, deleteItem } from "../actions/itemActions";
+import { getItems, deleteItem, selectItem } from "../actions/itemActions";
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 
+import Product from "./Product";
+import Cart from "./pay/Cart";
+import Payment from "./pay/Payment";
 import PropTypes from "prop-types";
 
 class ShoppingList extends Component {
@@ -28,59 +32,79 @@ class ShoppingList extends Component {
     this.props.deleteItem(id);
   };
 
+  onSetClick = id => {
+    console.log("selected item");
+    this.props.selectItem(id);
+  };
+
   render() {
     const { items } = this.props.item;
 
-    console.log(items);
+    console.log(this.props);
 
     return (
-      <Container>
-        <ListGroup
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center"
-          }}
-        >
-          <TransitionGroup className="shopping-list">
-            {this.props.isAuthenticated
-              ? items.map(({ _id, date, name, image }) => (
+      <React.Fragment>
+        <Route
+          exact
+          path="/"
+          render={props => (
+            <Container>
+              <ListGroup
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(3, 1fr)",
+                  justifyContent: "center",
+                  alignItems: "center"
+                }}
+              >
+                {items.map(({ _id, date, name, image }) => (
                   <CSSTransition key={_id} timeout={500} classNames="fade">
                     <ListGroupItem color="dark">
                       {
                         <div>
-                          <Button
-                            className="remove-btn"
-                            color="danger"
-                            size="sm"
-                            onClick={this.onDeleteClick.bind(this, _id)}
-                          >
-                            X
-                          </Button>
+                          {this.props.isAuthenticated ? (
+                            <Button
+                              className="remove-btn"
+                              color="danger"
+                              size="sm"
+                              onClick={this.onDeleteClick.bind(this, _id)}
+                            >
+                              X
+                            </Button>
+                          ) : null}
                           {name}
                           <br></br>
                           {date}
                           <br></br>
-                          <img src={image} width="200px" height="200px"></img>
+                          <Link
+                            to="/Product"
+                            onClick={this.onSetClick.bind(this, _id)}
+                          >
+                            <img src={image} width="200px" height="200px"></img>
+                          </Link>
                         </div>
                       }
                     </ListGroupItem>
                   </CSSTransition>
-                ))
-              : null}
-          </TransitionGroup>
-        </ListGroup>
-      </Container>
+                ))}
+              </ListGroup>
+            </Container>
+          )}
+        />
+        <Route path="/product" component={Product} />
+        <Route path="/cart" component={Cart} />
+        <Route path="/payment" component={Payment} />
+      </React.Fragment>
     );
   }
 }
 
 const mapStateToProps = state => ({
   item: state.item,
-  isAuthenticated: state.auth.isAuthenticated
+  isAuthenticated: state.auth.isAuthenticated,
+  user: state.auth.user
 });
 
-export default connect(
-  mapStateToProps,
-  { getItems, deleteItem }
-)(ShoppingList);
+export default connect(mapStateToProps, { getItems, deleteItem, selectItem })(
+  ShoppingList
+);
